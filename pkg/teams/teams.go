@@ -47,14 +47,14 @@ func (t Team) Score() int {
 
 	for _, p := range t.Players {
 		if p.position == Defence {
-			slog.Debug("defence score inc", "name", p.name, "inc", p.goals*3)
+			slog.Debug("defence goals score update", "name", p.name, "goals", p.goals, "inc", p.goals*3)
 			score += p.goals * 3
 		} else {
-			slog.Debug("forward score inc", "name", p.name, "inc", p.goals*2)
+			slog.Debug("forward goals score update", "name", p.name, "goals", p.goals, "inc", p.goals*2)
 			score += p.goals * 2
 		}
 
-		slog.Debug("assists score inc", "name", p.name, "inc", p.assists)
+		slog.Debug("assists score update", "name", p.name, "assists", p.assists, "inc", p.assists)
 		score += p.assists
 	}
 

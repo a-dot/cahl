@@ -32,10 +32,17 @@ func PlayerStats(id uint64, season string) *PlayerGoalsAssists {
 		panic(err)
 	}
 
+	ret, found := playerStatsCache[id]
+	if found {
+		return ret
+	}
+
 	resp, err := http.Get(fmt.Sprintf("https://api-web.nhle.com/v1/player/%d/landing", id))
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -51,11 +58,15 @@ func PlayerStats(id uint64, season string) *PlayerGoalsAssists {
 
 	for _, v := range p.Totals {
 		if v.Season == seasonID {
-			return &PlayerGoalsAssists{
+			ret = &PlayerGoalsAssists{
 				Position: p.Position,
 				Goals:    v.Goals,
 				Assists:  v.Assists,
 			}
+
+			playerStatsCache[id] = ret
+
+			return ret
 		}
 	}
 

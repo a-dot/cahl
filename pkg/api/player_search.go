@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -38,7 +39,12 @@ func SearchPlayer(name string, season string) uint64 {
 		}
 	}
 
-	queryString := fmt.Sprintf("https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q=%s", name)
+	ret, found := playerCache[name]
+	if found {
+		return ret
+	}
+
+	queryString := fmt.Sprintf("https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&active=true&q=%s", url.QueryEscape(name))
 
 	slog.Debug("searching player", "name", name, "queryString", queryString)
 
@@ -46,6 +52,8 @@ func SearchPlayer(name string, season string) uint64 {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -56,6 +64,7 @@ func SearchPlayer(name string, season string) uint64 {
 
 	err = json.Unmarshal(body, &psr)
 	if err != nil {
+		fmt.Println(string(body))
 		panic(err)
 	}
 
@@ -77,6 +86,8 @@ func SearchPlayer(name string, season string) uint64 {
 		if suppliedID > 0 && suppliedID != id {
 			continue
 		}
+
+		playerCache[name] = id
 
 		slog.Debug("search result for player", "name", name, "id", id)
 		return id

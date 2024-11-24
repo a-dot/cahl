@@ -2,6 +2,7 @@ package teams
 
 import (
 	"encoding/json"
+	"log/slog"
 	"os"
 )
 
@@ -33,6 +34,17 @@ func FromFile(s string) []Team {
 
 		for i, c := range inputTeam.Clubs {
 			t.Clubs[i].abbrev = c
+		}
+
+		// Sanity checks
+		if len(t.Players) != 9 {
+			slog.Error("team has the wrong number of players", "team", t.Name, "count", len(t.Players))
+			os.Exit(1)
+		}
+
+		if len(t.Clubs) != 3 {
+			slog.Error("team has the wrong number of clubs", "team", t.Name, "count", len(t.Clubs))
+			os.Exit(1)
 		}
 
 		ret = append(ret, t)

@@ -80,10 +80,16 @@ type TeamStandings struct {
 }
 
 func StatsForAllTeams() map[string]TeamStats {
+	if len(teamCache) > 0 {
+		return teamCache
+	}
+
 	resp, err := http.Get("https://api-web.nhle.com/v1/standings/now")
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -106,6 +112,8 @@ func StatsForAllTeams() map[string]TeamStats {
 			Wins:     v.Wins,
 		}
 	}
+
+	teamCache = ret
 
 	return ret
 }
