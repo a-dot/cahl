@@ -2,19 +2,50 @@ package teams
 
 import (
 	"encoding/json"
+	"io"
 	"log/slog"
+	"net/http"
 	"os"
+	"strings"
 )
 
-func FromFile(s string) []Team {
-	f, err := os.ReadFile(s)
+func inputFromDisk(fname string) []byte {
+	f, err := os.ReadFile(fname)
 	if err != nil {
 		panic(err)
 	}
 
+	return f
+}
+
+func inputFromRemote(url string) []byte {
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	return data
+}
+
+func FromFile(s string) []Team {
+	var data []byte
+
+	if strings.HasPrefix(s, "http") {
+		data = inputFromRemote(s)
+	} else {
+		data = inputFromDisk(s)
+	}
+
 	var inputTeams []InputTeam
 
-	err = json.Unmarshal(f, &inputTeams)
+	err := json.Unmarshal(data, &inputTeams)
 	if err != nil {
 		panic(err)
 	}

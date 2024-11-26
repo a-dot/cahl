@@ -17,7 +17,7 @@ type Ranking struct {
 }
 
 var opts struct {
-	TeamsFile string `short:"t" description:"teams file"`
+	TeamsFile string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
 	Season    string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
 }
 
