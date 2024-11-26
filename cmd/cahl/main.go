@@ -3,16 +3,22 @@ package main
 import (
 	"fmt"
 	"log/slog"
-	"nhlpool/pkg/teams"
 	"os"
 	"slices"
-)
 
-var CURRENTSEASON = "20242025" //TODO make command line argument
+	"github.com/jessevdk/go-flags"
+
+	"cahl/pkg/teams"
+)
 
 type Ranking struct {
 	teamName string
 	score    int
+}
+
+var opts struct {
+	TeamsFile string `short:"t" description:"teams file"`
+	Season    string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
 }
 
 func main() {
@@ -20,14 +26,19 @@ func main() {
 		Level: slog.LevelDebug,
 	})))
 
-	teams := teams.FromFile("../../resources/teams.json")
+	_, err := flags.Parse(&opts)
+	if err != nil {
+		panic(err)
+	}
+
+	teams := teams.FromFile(opts.TeamsFile)
 
 	ranking := make([]Ranking, 0, len(teams))
 
 	for _, team := range teams {
-		team.PopulatePlayersStats(CURRENTSEASON)
+		team.PopulatePlayersStats(opts.Season)
 
-		team.PopulateClubsStats(CURRENTSEASON)
+		team.PopulateClubsStats(opts.Season)
 
 		score := team.Score()
 

@@ -2,7 +2,8 @@ package teams
 
 import (
 	"log/slog"
-	"nhlpool/pkg/api"
+
+	"cahl/pkg/api"
 )
 
 type InputTeam struct {
