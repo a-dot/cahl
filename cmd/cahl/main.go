@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -17,8 +18,9 @@ type Ranking struct {
 }
 
 var opts struct {
-	TeamsFile string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
-	Season    string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
+	TeamsFile      string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
+	Season         string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
+	DataOutputFile string `short:"d" description:"output json file with information used to calculate ranking"`
 }
 
 func main() {
@@ -52,4 +54,16 @@ func main() {
 	})
 
 	fmt.Println(ranking)
+
+	if len(opts.DataOutputFile) > 0 {
+		teamsData, err := json.Marshal(teams)
+		if err != nil {
+			panic(err)
+		}
+
+		err = os.WriteFile(opts.DataOutputFile, teamsData, 0644)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

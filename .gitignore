@@ -1,3 +1,4 @@
 .vscode
 resources
 cmd/cahl/cahl
+output.json

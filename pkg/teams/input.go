@@ -60,11 +60,11 @@ func FromFile(s string) []Team {
 		}
 
 		for i, p := range inputTeam.Players {
-			t.Players[i].name = p
+			t.Players[i].Name = p
 		}
 
 		for i, c := range inputTeam.Clubs {
-			t.Clubs[i].abbrev = c
+			t.Clubs[i].Abbrev = c
 		}
 
 		// Sanity checks
