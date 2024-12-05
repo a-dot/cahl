@@ -2,3 +2,7 @@
 resources
 cmd/cahl/cahl
 output.json
+
+.DS_Store
+
+output_*

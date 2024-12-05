@@ -12,28 +12,11 @@ import (
 	"cahl/pkg/teams"
 )
 
-type Ranking struct {
-	TeamName string        `json:"team"`
-	Score    int           `json:"score"`
-	Delta    *RankingDelta `json:"delta,omitempty"`
-}
-
-type RankingDelta struct {
-	Score    int `json:"score"`
-	Position int `json:"position"`
-}
-
 var opts struct {
 	TeamsFile      string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
 	Season         string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
 	DataOutputFile string `short:"d" description:"output json file with information used to calculate ranking"`
 	Delta          string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
-}
-
-type Output struct {
-	Timestamp int64        `json:"timestamp"`
-	Ranking   []Ranking    `json:"ranking"`
-	Teams     []teams.Team `json:"teams"`
 }
 
 func main() {
@@ -46,18 +29,18 @@ func main() {
 		panic(err)
 	}
 
-	teams := teams.FromFile(opts.TeamsFile)
+	inTeams := teams.FromFile(opts.TeamsFile)
 
-	ranking := make([]Ranking, 0, len(teams))
+	ranking := make([]teams.Ranking, 0, len(inTeams))
 
-	for _, team := range teams {
+	for _, team := range inTeams {
 		team.PopulatePlayersStats(opts.Season)
 
 		team.PopulateClubsStats(opts.Season)
 
 		score := team.Score()
 
-		ranking = append(ranking, Ranking{
+		ranking = append(ranking, teams.Ranking{
 			TeamName: team.Name,
 			Score:    score,
 			Delta:    nil,
@@ -66,7 +49,7 @@ func main() {
 		slog.Debug("total score for team", "team", team.Name, "score", score)
 	}
 
-	slices.SortFunc(ranking, func(a, b Ranking) int {
+	slices.SortFunc(ranking, func(a, b teams.Ranking) int {
 		return b.Score - a.Score
 	})
 
@@ -77,10 +60,10 @@ func main() {
 	}
 
 	if len(opts.DataOutputFile) > 0 {
-		outputData, err := json.Marshal(Output{
+		outputData, err := json.Marshal(teams.Output{
 			Timestamp: time.Now().Unix(),
 			Ranking:   ranking,
-			Teams:     teams,
+			Teams:     inTeams,
 		})
 		if err != nil {
 			panic(err)
@@ -93,7 +76,7 @@ func main() {
 	}
 }
 
-func findTeam(src []Ranking, team string) int {
+func findTeam(src []teams.Ranking, team string) int {
 	for i := range src {
 		if src[i].TeamName == team {
 			return i
@@ -103,13 +86,13 @@ func findTeam(src []Ranking, team string) int {
 	return -1
 }
 
-func populateDelta(prevFile string, current []Ranking) {
+func populateDelta(prevFile string, current []teams.Ranking) {
 	prev := prevOutput(prevFile).Ranking
 
 	for i, t := range current {
 		prevTeamIdx := findTeam(prev, t.TeamName)
 
-		d := &RankingDelta{
+		d := &teams.RankingDelta{
 			Position: prevTeamIdx - i,
 			Score:    t.Score - prev[prevTeamIdx].Score,
 		}
@@ -118,13 +101,13 @@ func populateDelta(prevFile string, current []Ranking) {
 	}
 }
 
-func prevOutput(prevFile string) Output {
+func prevOutput(prevFile string) teams.Output {
 	data, err := os.ReadFile(prevFile)
 	if err != nil {
 		panic(err)
 	}
 
-	var r Output
+	var r teams.Output
 
 	err = json.Unmarshal(data, &r)
 	if err != nil {
