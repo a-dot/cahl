@@ -33,13 +33,16 @@ func main() {
 		panic(err)
 	}
 
-	// ranking := make([]teams.Ranking, 0, len(inTeams))
-
 	playerSearcher := nhlapi.NewPlayerSearcher()
 	playerFetcher := nhlapi.NewPlayerInfoFetcher()
 	clubFetcher := nhlapi.NewClubInfoFetcher()
 
 	for _, team := range inTeams {
+		if err := team.Valid(); err != nil {
+			slog.Error("invalid team", "name", team.Name, "err", err)
+			os.Exit(1)
+		}
+
 		for _, player := range team.Players {
 			err := player.FetchStats(opts.Season, playerSearcher, playerFetcher)
 			if err != nil {
@@ -53,29 +56,13 @@ func main() {
 				panic(err)
 			}
 		}
-
-		score := team.Score()
-
-		fmt.Println(score)
-
-		// ranking = append(ranking, teams.Ranking{
-		// 	TeamName: team.Name,
-		// 	Score:    score,
-		// 	Delta:    nil,
-		// })
-
-		// slog.Debug("total score for team", "team", team.Name, "score", score)
 	}
-
-	// slices.SortFunc(ranking, func(a, b teams.Ranking) int {
-	// 	return b.Score - a.Score
-	// })
-
-	// slog.Debug("ranking", "ranking", ranking)
 
 	// if len(opts.Delta) > 0 {
 	// 	populateDelta(opts.Delta, ranking)
 	// }
+
+	fmt.Println(cahl.CreateRanking(inTeams))
 
 	// if len(opts.DataOutputFile) > 0 {
 	// 	outputData, err := json.Marshal(teams.Output{
