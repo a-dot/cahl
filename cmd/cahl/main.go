@@ -15,7 +15,7 @@ var opts struct {
 	TeamsFile      string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
 	Season         string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
 	DataOutputFile string `short:"d" description:"output json file with information used to calculate ranking"`
-	Delta          string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
+	PrevDataFile   string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
 }
 
 func main() {
@@ -62,7 +62,9 @@ func main() {
 	// 	populateDelta(opts.Delta, ranking)
 	// }
 
-	fmt.Println(cahl.CreateRanking(inTeams))
+	ranking := cahl.CreateRanking(inTeams)
+
+	fmt.Println(ranking)
 
 	// if len(opts.DataOutputFile) > 0 {
 	// 	outputData, err := json.Marshal(teams.Output{
@@ -80,44 +82,3 @@ func main() {
 	// 	}
 	// }
 }
-
-// func findTeam(src []teams.Ranking, team string) int {
-// 	for i := range src {
-// 		if src[i].TeamName == team {
-// 			return i
-// 		}
-// 	}
-
-// 	return -1
-// }
-
-// func populateDelta(prevFile string, current []teams.Ranking) {
-// 	prev := prevOutput(prevFile).Ranking
-
-// 	for i, t := range current {
-// 		prevTeamIdx := findTeam(prev, t.TeamName)
-
-// 		d := &teams.RankingDelta{
-// 			Position: prevTeamIdx - i,
-// 			Score:    t.Score - prev[prevTeamIdx].Score,
-// 		}
-
-// 		current[i].Delta = d
-// 	}
-// }
-
-// func prevOutput(prevFile string) teams.Output {
-// 	data, err := os.ReadFile(prevFile)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	var r teams.Output
-
-// 	err = json.Unmarshal(data, &r)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return r
-// }
