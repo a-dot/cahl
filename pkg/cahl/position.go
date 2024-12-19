@@ -8,7 +8,8 @@ import (
 type Position int
 
 const (
-	Forward Position = iota
+	Unknown Position = iota
+	Forward
 	Defence
 )
 
@@ -23,7 +24,7 @@ func (p Position) String() string {
 	}
 }
 
-func ParsePosition(s string) (Position, error) {
+func ParsePositionFromAPI(s string) (Position, error) {
 	switch s {
 	case "C":
 		fallthrough
@@ -34,8 +35,19 @@ func ParsePosition(s string) (Position, error) {
 	case "D":
 		return Defence, nil
 	default:
-		return 0, errors.New("unknown position")
+		return Unknown, errors.New("unknown position")
 	}
+}
+
+func ParseMarshaledPosition(s string) (Position, error) {
+	switch s {
+	case "forward":
+		return Forward, nil
+	case "defence":
+		return Defence, nil
+	}
+
+	return Unknown, errors.New("unknown position")
 }
 
 func (p Position) MarshalJSON() ([]byte, error) {
@@ -49,7 +61,7 @@ func (p *Position) UnmarshalJSON(data []byte) (err error) {
 		return err
 	}
 
-	if *p, err = ParsePosition(pos); err != nil {
+	if *p, err = ParseMarshaledPosition(pos); err != nil {
 		return err
 	}
 

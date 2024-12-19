@@ -48,7 +48,7 @@ func (p *Player) FetchStats(season string, s PlayerSearcher, info PlayerInfoFetc
 		return fmt.Errorf("error fetching assists, %w", err)
 	}
 
-	p.Position, err = ParsePosition(position)
+	p.Position, err = ParsePositionFromAPI(position)
 	if err != nil {
 		return fmt.Errorf("error fetching position, %w", err)
 	}

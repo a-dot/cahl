@@ -9,9 +9,8 @@ import (
 )
 
 type Rank struct {
-	Team  Team
-	Score int
-	Delta DeltaFromPrev
+	Team  Team `json:"team"`
+	Score int  `json:"score"`
 }
 
 type DeltaFromPrev struct {
@@ -20,8 +19,8 @@ type DeltaFromPrev struct {
 }
 
 type Ranking struct {
-	Timestamp time.Time
-	Teams     []Rank
+	Timestamp time.Time `json:"timestamp"`
+	Teams     []Rank    `json:"teams"`
 }
 
 func (r Rank) String() string {

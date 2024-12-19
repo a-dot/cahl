@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/jessevdk/go-flags"
 
@@ -12,10 +14,11 @@ import (
 )
 
 var opts struct {
-	TeamsFile      string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
-	Season         string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
-	DataOutputFile string `short:"d" description:"output json file with information used to calculate ranking"`
-	PrevDataFile   string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
+	TeamsFile       string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
+	Season          string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
+	DataOutputFile  string `short:"d" description:"output ranking in json format (that file is used to calculate ranking differential)"`
+	PrevDataFile    string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
+	ExcelOutputFile string `short:"e" description:"excel output file name"`
 }
 
 func main() {
@@ -26,6 +29,19 @@ func main() {
 	_, err := flags.Parse(&opts)
 	if err != nil {
 		panic(err)
+	}
+
+	var prevRanking cahl.Ranking
+	if len(opts.PrevDataFile) > 0 {
+		data, err := os.ReadFile(opts.PrevDataFile)
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(data, &prevRanking)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	inTeams, err := cahl.LoadTeams(opts.TeamsFile)
@@ -58,27 +74,23 @@ func main() {
 		}
 	}
 
-	// if len(opts.Delta) > 0 {
-	// 	populateDelta(opts.Delta, ranking)
-	// }
-
 	ranking := cahl.CreateRanking(inTeams)
 
-	fmt.Println(ranking)
+	if len(opts.DataOutputFile) > 0 {
+		outputData, err := json.Marshal(ranking)
+		if err != nil {
+			panic(err)
+		}
 
-	// if len(opts.DataOutputFile) > 0 {
-	// 	outputData, err := json.Marshal(teams.Output{
-	// 		Timestamp: time.Now().Unix(),
-	// 		Ranking:   ranking,
-	// 		Teams:     inTeams,
-	// 	})
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
+		outputFile := fmt.Sprintf("%s_%s.json", opts.DataOutputFile, time.Now().Format("20060102"))
 
-	// 	err = os.WriteFile(opts.DataOutputFile, outputData, 0644)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// }
+		err = os.WriteFile(outputFile, outputData, 0644)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if len(opts.ExcelOutputFile) > 0 {
+		cahl.Excelize(ranking, prevRanking, opts.ExcelOutputFile)
+	}
 }

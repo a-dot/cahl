@@ -62,23 +62,90 @@ func (t Team) Score() (score int) {
 	return
 }
 
-func (p Player) Score() (score int) {
+const (
+	GoalDefencePointsFactor = 3
+	GoalForwardPointsFactor = 2
+	AssistPointsFactor      = 1
+	WinPointsFactor         = 2
+	LossesInOTPointsFactor  = 1
+)
+
+func (p Player) ScoreForGoals() (score int) {
 	if p.Position == Defence {
-		score += p.Stats.Goals * 3
+		score += p.Stats.Goals * GoalDefencePointsFactor
 	} else {
-		score += p.Stats.Goals * 2
+		score += p.Stats.Goals * GoalForwardPointsFactor
 	}
 
-	score += p.Stats.Assists
+	return
+}
+
+func (p Player) ScoreForAssists() (score int) {
+	score += p.Stats.Assists * AssistPointsFactor
+
+	return
+}
+
+func (p Player) Score() (score int) {
+	score += p.ScoreForGoals()
+
+	score += p.ScoreForAssists()
 
 	slog.Debug("player score", "name", p.Name, "score", score, "assists", p.Stats.Assists, "goals", p.Stats.Goals, "position", p.Position)
 
 	return
 }
 
+func (c Club) ScoreForWins() (score int) {
+	score += c.Stats.Wins * WinPointsFactor
+
+	return
+}
+
+func (c Club) ScoreForLossesInOT() (score int) {
+	score += c.Stats.LossesInOT * LossesInOTPointsFactor
+
+	return
+}
+
 func (c Club) Score() (score int) {
+	score += c.ScoreForWins()
+
+	score += c.ScoreForLossesInOT()
+
 	slog.Debug("club score", "name", c.Abbrev, "wins", c.Stats.Wins, "lossesInOT", c.Stats.LossesInOT, "inc", c.Stats.Wins*2+c.Stats.LossesInOT)
-	score += c.Stats.Wins*2 + c.Stats.LossesInOT
+
+	return
+}
+
+func (t Team) ScoreForGoals() (score int) {
+	for _, p := range t.Players {
+		score += p.ScoreForGoals()
+	}
+
+	return
+}
+
+func (t Team) ScoreForAssists() (score int) {
+	for _, p := range t.Players {
+		score += p.ScoreForAssists()
+	}
+
+	return
+}
+
+func (t Team) ScoreForWins() (score int) {
+	for _, c := range t.Clubs {
+		score += c.ScoreForWins()
+	}
+
+	return
+}
+
+func (t Team) ScoreForLossesInOT() (score int) {
+	for _, c := range t.Clubs {
+		score += c.ScoreForLossesInOT()
+	}
 
 	return
 }
