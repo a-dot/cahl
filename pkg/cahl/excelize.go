@@ -47,6 +47,19 @@ func Excelize(curRanking, prevRanking Ranking, outputFile string) {
 
 	numberOfTeams := len(curRanking.Teams)
 
+	createCommentsBox(f, numberOfTeams)
+
+	centerColumnsCThroughG(f, numberOfTeams)
+
+	colorizeColumnF(f, numberOfTeams)
+
+	// Save spreadsheet by the given path.
+	if err := f.SaveAs(outputFile); err != nil {
+		panic(err)
+	}
+}
+
+func createCommentsBox(f *excelize.File, numberOfTeams int) {
 	// Blank line
 	f.SetCellValue(SHEET_NAME, fmt.Sprintf("A%d", numberOfTeams+2), " ")
 	f.MergeCell(SHEET_NAME, fmt.Sprintf("A%d", numberOfTeams+2), fmt.Sprintf("G%d", numberOfTeams+2))
@@ -70,9 +83,10 @@ func Excelize(curRanking, prevRanking Ranking, outputFile string) {
 	}
 
 	f.SetCellStyle(SHEET_NAME, fmt.Sprintf("A%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3), style)
+}
 
-	// Center columns C, D, E, F and G
-	style, err = f.NewStyle(&excelize.Style{
+func centerColumnsCThroughG(f *excelize.File, numberOfTeams int) {
+	style, err := f.NewStyle(&excelize.Style{
 		Alignment: &excelize.Alignment{
 			Horizontal: "center",
 		},
@@ -82,9 +96,10 @@ func Excelize(curRanking, prevRanking Ranking, outputFile string) {
 	}
 
 	f.SetCellStyle(SHEET_NAME, "C1", fmt.Sprintf("G%d", numberOfTeams+2), style)
+}
 
-	// Color blue column F
-	style, err = f.NewStyle(&excelize.Style{
+func colorizeColumnF(f *excelize.File, numberOfTeams int) {
+	style, err := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Color: "#0000FF",
 			Bold:  true,
@@ -98,11 +113,6 @@ func Excelize(curRanking, prevRanking Ranking, outputFile string) {
 	}
 
 	f.SetCellStyle(SHEET_NAME, "F2", fmt.Sprintf("F%d", numberOfTeams+1), style)
-
-	// Save spreadsheet by the given path.
-	if err := f.SaveAs("ACHL.xlsx"); err != nil {
-		panic(err)
-	}
 }
 
 func produceRow(f *excelize.File, sheet string, n int, teamRank Rank, delta DeltaFromPrev) {
