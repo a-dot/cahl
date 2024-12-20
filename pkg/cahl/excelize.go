@@ -77,6 +77,9 @@ func createCommentsBox(f *excelize.File, numberOfTeams int) {
 			{Type: "bottom", Color: "000000", Style: 2},
 			{Type: "right", Color: "000000", Style: 2},
 		},
+		Alignment: &excelize.Alignment{
+			Vertical: "top",
+		},
 	})
 	if err != nil {
 		panic(err)
