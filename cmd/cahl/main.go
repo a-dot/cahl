@@ -91,6 +91,6 @@ func main() {
 	}
 
 	if len(opts.ExcelOutputFile) > 0 {
-		cahl.Excelize(ranking, prevRanking, opts.ExcelOutputFile)
+		cahl.Excelize(inTeams, ranking, prevRanking, opts.ExcelOutputFile)
 	}
 }
