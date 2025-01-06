@@ -93,4 +93,6 @@ func main() {
 	if len(opts.ExcelOutputFile) > 0 {
 		cahl.Excelize(inTeams, ranking, prevRanking, opts.ExcelOutputFile)
 	}
+
+	slog.Debug("ranking", "ranking", ranking)
 }
