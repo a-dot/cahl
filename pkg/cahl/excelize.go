@@ -170,7 +170,7 @@ func classementSheet(f *excelize.File, sheetName string, curRanking, prevRanking
 	f.SetColWidth(sheetName, "A", "A", 5)
 
 	f.SetColWidth(sheetName, "B", "B", 35)
-	f.SetCellValue(sheetName, "B1", "Nom des equipes")
+	f.SetCellValue(sheetName, "B1", "Nom des Équipes")
 
 	f.SetCellValue(sheetName, "C1", "B/V")
 
@@ -196,6 +196,10 @@ func classementSheet(f *excelize.File, sheetName string, curRanking, prevRanking
 	centerColumnsCThroughG(f, sheetName, numberOfTeams)
 
 	colorizeColumnF(f, sheetName, numberOfTeams)
+
+	colorizeColumnA(f, sheetName)
+
+	stylizeB1(f, sheetName)
 
 	return index
 }
@@ -245,7 +249,7 @@ func centerColumnsCThroughG(f *excelize.File, sheetName string, numberOfTeams in
 func colorizeColumnF(f *excelize.File, sheetName string, numberOfTeams int) {
 	style, err := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
-			Color: "#0000FF",
+			Color: "#728CD4",
 			Bold:  true,
 		},
 		Alignment: &excelize.Alignment{
@@ -257,6 +261,37 @@ func colorizeColumnF(f *excelize.File, sheetName string, numberOfTeams int) {
 	}
 
 	f.SetCellStyle(sheetName, "F2", fmt.Sprintf("F%d", numberOfTeams+1), style)
+}
+
+func colorizeColumnA(f *excelize.File, sheetName string) {
+	style, err := f.NewStyle(&excelize.Style{
+		Font: &excelize.Font{
+			Color: "#FF0000",
+			Bold:  true,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	f.SetCellStyle(sheetName, "A2", "A2", style)
+	f.SetCellStyle(sheetName, "A3", "A3", style)
+	f.SetCellStyle(sheetName, "A6", "A6", style)
+	f.SetCellStyle(sheetName, "A11", "A11", style)
+}
+
+func stylizeB1(f *excelize.File, sheetName string) {
+	style, err := f.NewStyle(&excelize.Style{
+		Font: &excelize.Font{
+			Color: "#FF0000",
+			Bold:  true,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	f.SetCellStyle(sheetName, "B1", "B1", style)
 }
 
 func produceRow(f *excelize.File, sheet string, n int, teamRank Rank, delta DeltaFromPrev) {

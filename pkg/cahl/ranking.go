@@ -64,9 +64,16 @@ func (t Rank) DeltaFrom(cur, prev Ranking) DeltaFromPrev {
 		panic(err)
 	}
 
-	prevScore, err := prev.TeamScore(t)
-	if err != nil {
-		panic(err)
+	var prevScore int
+	if len(prev.Teams) == 0 {
+		// Let us run without a previous ranking
+		prevScore = 0
+		prevPosition = len(cur.Teams)
+	} else {
+		prevScore, err = prev.TeamScore(t)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return DeltaFromPrev{
