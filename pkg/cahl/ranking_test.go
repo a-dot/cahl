@@ -1,6 +1,7 @@
 package cahl
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -94,4 +95,60 @@ func TestDeltaFromNegativePosition(t *testing.T) {
 
 	require.Equal(t, -1, res.Position)
 	require.Equal(t, 4, res.Score)
+}
+
+func TestRankSort(t *testing.T) {
+	a := Rank{
+		Team: Team{
+			Name: "A",
+			Players: []*Player{
+				{Position: Forward, Stats: PlayerStats{Goals: 2}},
+			},
+		},
+	}
+	a.Score = a.Team.Score()
+
+	b := Rank{
+		Team: Team{
+			Name: "B",
+			Players: []*Player{
+				{Position: Forward, Stats: PlayerStats{Goals: 3}},
+			},
+		},
+	}
+	b.Score = b.Team.Score()
+
+	teams := []Rank{a, b}
+
+	slices.SortFunc(teams, rankSort)
+
+	require.Equal(t, "B", teams[0].Team.Name)
+}
+
+func TestRankSortTieBreaker(t *testing.T) {
+	a := Rank{
+		Team: Team{
+			Name: "A",
+			Players: []*Player{
+				{Position: Forward, Stats: PlayerStats{Goals: 2, Assists: 2}},
+			},
+		},
+	}
+	a.Score = a.Team.Score()
+
+	b := Rank{
+		Team: Team{
+			Name: "B",
+			Players: []*Player{
+				{Position: Forward, Stats: PlayerStats{Goals: 3}},
+			},
+		},
+	}
+	b.Score = b.Team.Score()
+
+	teams := []Rank{a, b}
+
+	slices.SortFunc(teams, rankSort)
+
+	require.Equal(t, "B", teams[0].Team.Name)
 }

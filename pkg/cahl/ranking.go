@@ -27,6 +27,14 @@ func (r Rank) String() string {
 	return fmt.Sprintf("(%d)%s", r.Score, r.Team.Name)
 }
 
+func rankSort(a, b Rank) int {
+	if a.Score == b.Score {
+		return b.Team.ScoreForGoals() - a.Team.ScoreForGoals()
+	}
+
+	return b.Score - a.Score
+}
+
 func CreateRanking(teams []Team) Ranking {
 	ranking := make([]Rank, 0, len(teams))
 
@@ -37,9 +45,7 @@ func CreateRanking(teams []Team) Ranking {
 		})
 	}
 
-	slices.SortFunc(ranking, func(a, b Rank) int {
-		return b.Score - a.Score
-	})
+	slices.SortFunc(ranking, rankSort)
 
 	slog.Debug("ranking", "ranking", ranking)
 
@@ -70,9 +76,7 @@ func (t Rank) DeltaFrom(cur, prev Ranking) DeltaFromPrev {
 }
 
 func (ranking Ranking) Position(r Rank) int {
-	slices.SortFunc(ranking.Teams, func(a, b Rank) int {
-		return b.Score - a.Score
-	})
+	slices.SortFunc(ranking.Teams, rankSort)
 
 	for i, t := range ranking.Teams {
 		if t.Team.Name == r.Team.Name {
