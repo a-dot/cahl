@@ -209,28 +209,136 @@ func createCommentsBox(f *excelize.File, sheetName string, numberOfTeams int) {
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", numberOfTeams+2), " ")
 	f.MergeCell(sheetName, fmt.Sprintf("A%d", numberOfTeams+2), fmt.Sprintf("G%d", numberOfTeams+2))
 
+	// Blank column on the left
+	f.MergeCell(sheetName, fmt.Sprintf("A%d", numberOfTeams+3), fmt.Sprintf("A%d", numberOfTeams+3+4+9+2))
+
 	// Comments box
-	f.SetCellValue(sheetName, fmt.Sprintf("A%d", numberOfTeams+3), " ")
-	f.SetRowHeight(sheetName, numberOfTeams+3, 100)
-	f.MergeCell(sheetName, fmt.Sprintf("A%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3))
 
 	// Set border around cells
 	style, err := f.NewStyle(&excelize.Style{
 		Border: []excelize.Border{
 			{Type: "left", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3), fmt.Sprintf("B%d", numberOfTeams+3+4+9+2), style)
+
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
 			{Type: "top", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3), style)
+
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "bottom", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4+9+2), fmt.Sprintf("G%d", numberOfTeams+3+4+9+2), style)
+
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "right", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("G%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3+4+9+2), style)
+
+	// Top left corner
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "top", Color: "000000", Style: 2},
+			{Type: "left", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3), fmt.Sprintf("B%d", numberOfTeams+3), style)
+
+	// Top right corner
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "top", Color: "000000", Style: 2},
+			{Type: "right", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("G%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3), style)
+
+	// Bottom left corner
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "bottom", Color: "000000", Style: 2},
+			{Type: "left", Color: "000000", Style: 2},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4+9+2), fmt.Sprintf("B%d", numberOfTeams+3+4+9+2), style)
+
+	// Bottom right corner
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
 			{Type: "bottom", Color: "000000", Style: 2},
 			{Type: "right", Color: "000000", Style: 2},
 		},
-		Alignment: &excelize.Alignment{
-			Vertical: "top",
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellStyle(sheetName, fmt.Sprintf("G%d", numberOfTeams+3+4+9+2), fmt.Sprintf("G%d", numberOfTeams+3+4+9+2), style)
+
+	// Red titled sections
+	style, err = f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "top", Color: "000000", Style: 2},
+			{Type: "left", Color: "000000", Style: 2},
+		},
+		Font: &excelize.Font{
+			Color:     "#FF0000",
+			Underline: "single",
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	f.SetCellStyle(sheetName, fmt.Sprintf("A%d", numberOfTeams+3), fmt.Sprintf("G%d", numberOfTeams+3), style)
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", numberOfTeams+3), "LES * * * DE LA SEMAINE")
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3), fmt.Sprintf("B%d", numberOfTeams+3), style)
+
+	style, err = f.NewStyle(&excelize.Style{
+
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 2},
+		},
+		Font: &excelize.Font{
+			Color:     "#FF0000",
+			Underline: "single",
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4), "LES POTINS DE L'A.C.H.L.")
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4), fmt.Sprintf("B%d", numberOfTeams+3+4), style)
+
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4+9), "LES ABSENTS : ")
+	f.SetCellStyle(sheetName, fmt.Sprintf("B%d", numberOfTeams+3+4+9), fmt.Sprintf("B%d", numberOfTeams+3+4+9), style)
 }
 
 func centerColumnsCThroughG(f *excelize.File, sheetName string, numberOfTeams int) {
