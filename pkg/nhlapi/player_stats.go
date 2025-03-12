@@ -103,19 +103,26 @@ func searchPlayerStatsThroughAPI(season string, id uint64) (*PlayerStats, error)
 		panic(err)
 	}
 
-	var ret *PlayerStats
+	ret := &PlayerStats{}
+	found := false
 
 	for _, v := range p.Totals {
 		if v.Season == seasonID {
-			ret = &PlayerStats{
-				Position: p.Position,
-				Goals:    v.Goals,
-				Assists:  v.Assists,
+			if ret.Position != "" && ret.Position != p.Position {
+				return nil, fmt.Errorf("player (%d) had position '%s' and now we found position '%s'", id, ret.Position, p.Position)
 			}
 
-			return ret, nil
+			ret.Position = p.Position
+			ret.Goals += v.Goals
+			ret.Assists += v.Assists
+
+			found = true
 		}
 	}
 
-	return nil, fmt.Errorf("player stats not found for player id %d", id)
+	if !found {
+		return nil, fmt.Errorf("player stats not found for player id %d", id)
+	}
+
+	return ret, nil
 }
