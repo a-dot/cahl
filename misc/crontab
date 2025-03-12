@@ -1,0 +1,1 @@
+0 4 * * 1 /root/send_email.sh
