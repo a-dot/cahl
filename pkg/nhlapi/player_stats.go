@@ -68,9 +68,10 @@ func (pi PlayerInfo) fetchPlayerStats(season string, id uint64) (*PlayerStats, e
 }
 
 type SeasonTotals struct {
-	Assists int `json:"assists"`
-	Goals   int `json:"goals"`
-	Season  int `json:"season"`
+	Assists int    `json:"assists"`
+	Goals   int    `json:"goals"`
+	Season  int    `json:"season"`
+	League  string `json:"leagueAbbrev"`
 }
 
 type PlayerStatsAllSeasons struct {
@@ -107,17 +108,23 @@ func searchPlayerStatsThroughAPI(season string, id uint64) (*PlayerStats, error)
 	found := false
 
 	for _, v := range p.Totals {
-		if v.Season == seasonID {
-			if ret.Position != "" && ret.Position != p.Position {
-				return nil, fmt.Errorf("player (%d) had position '%s' and now we found position '%s'", id, ret.Position, p.Position)
-			}
-
-			ret.Position = p.Position
-			ret.Goals += v.Goals
-			ret.Assists += v.Assists
-
-			found = true
+		if v.Season != seasonID {
+			continue
 		}
+
+		if v.League != "NHL" {
+			continue
+		}
+
+		if ret.Position != "" && ret.Position != p.Position {
+			return nil, fmt.Errorf("player (%d) had position '%s' and now we found position '%s'", id, ret.Position, p.Position)
+		}
+
+		ret.Position = p.Position
+		ret.Goals += v.Goals
+		ret.Assists += v.Assists
+
+		found = true
 	}
 
 	if !found {
