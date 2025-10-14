@@ -15,7 +15,7 @@ import (
 
 var opts struct {
 	TeamsFile       string `short:"t" description:"teams file" default:"https://raw.githubusercontent.com/a-dot/cahl-teams/refs/heads/main/teams.json"`
-	Season          string `short:"s" description:"season (format is YYYYXXXX)" default:"20242025"`
+	Season          string `short:"s" description:"season (format is YYYYXXXX)" default:"20252026"`
 	DataOutputFile  string `short:"d" description:"output ranking in json format (that file is used to calculate ranking differential)"`
 	PrevDataFile    string `short:"D" description:"calculate the delta from the last run by passing the output file here"`
 	ExcelOutputFile string `short:"e" description:"excel output file name"`
