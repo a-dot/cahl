@@ -9,3 +9,4 @@ output_*
 *.xlsx
 
 cahl.freebsd
+__debug_bin*
