@@ -26,7 +26,7 @@ type ClubStats struct {
 func (ci ClubInfo) LossesOT(abbrev string) (int, error) {
 	cs, err := ci.fetchClubStats(abbrev)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	return cs.LossesOT, nil
@@ -35,7 +35,7 @@ func (ci ClubInfo) LossesOT(abbrev string) (int, error) {
 func (ci ClubInfo) Wins(abbrev string) (int, error) {
 	cs, err := ci.fetchClubStats(abbrev)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	return cs.Wins, nil
