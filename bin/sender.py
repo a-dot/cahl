@@ -4,13 +4,17 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import subprocess, datetime, sys
+import syslog
 
+syslog.openlog("cahl", syslog.LOG_PID, syslog.LOG_USER)
+
+syslog.syslog("starting")
 
 lastweek = datetime.date.today() - datetime.timedelta(weeks=1)
 output_name = "output_{}.json".format(lastweek.strftime("%Y%m%d"))
 
-subprocess.run([
-    "./cahl.freebsd",
+rc = subprocess.run([
+    "../cmd/cahl/cahl",
     "-d",
     "output",
     "-D",
@@ -18,6 +22,8 @@ subprocess.run([
     "-e",
     "cahl.xlsx"
     ])
+
+syslog.syslog(syslog.LOG_DEBUG, f"done running binary, rc={rc.returncode}")
 
 with open("cahl.xlsx", "rb") as attachment:
     # Add the attachment to the message
@@ -59,14 +65,18 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
 subject = "Pool de la semaine"
 body = "Voici le pool de la semaine.."
 sender_name = "Pool Manager"
-sender = "roach4facebook@gmail.com"
+sender = "do-not-reply@cahl.com"
 password = ""
-# TODO ^^ add password
+# TODO FIXME ^^ add password
 
+syslog.syslog(syslog.LOG_DEBUG, "send first email")
 recipients = [""]
-# TODO ^^ add dad's email
+# TODO FIXME ^^ add dad's email
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
+syslog.syslog(syslog.LOG_DEBUG, "send second email")
 recipients = [""]
-# TODO ^^ add my email
+# TODO FIXME ^^ add my email
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file, output_file])
+
+syslog.closelog
