@@ -29,7 +29,7 @@ func (r Rank) String() string {
 
 func rankSort(a, b Rank) int {
 	if a.Score == b.Score {
-		return b.Team.ScoreForGoals() - a.Team.ScoreForGoals()
+		return (b.Team.ScoreForWins() + b.Team.ScoreForGoals()) - (a.Team.ScoreForWins() + a.Team.ScoreForGoals())
 	}
 
 	return b.Score - a.Score

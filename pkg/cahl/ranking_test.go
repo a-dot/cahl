@@ -132,6 +132,9 @@ func TestRankSortTieBreaker(t *testing.T) {
 			Players: []*Player{
 				{Position: Forward, Stats: PlayerStats{Goals: 2, Assists: 2}},
 			},
+			Clubs: []*Club{
+				{Stats: ClubStats{Wins: 2}},
+			},
 		},
 	}
 	a.Score = a.Team.Score()
@@ -140,7 +143,7 @@ func TestRankSortTieBreaker(t *testing.T) {
 		Team: Team{
 			Name: "B",
 			Players: []*Player{
-				{Position: Forward, Stats: PlayerStats{Goals: 3}},
+				{Position: Forward, Stats: PlayerStats{Goals: 3, Assists: 4}},
 			},
 		},
 	}
@@ -150,5 +153,5 @@ func TestRankSortTieBreaker(t *testing.T) {
 
 	slices.SortFunc(teams, rankSort)
 
-	require.Equal(t, "B", teams[0].Team.Name)
+	require.Equal(t, "A", teams[0].Team.Name)
 }
