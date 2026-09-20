@@ -21,7 +21,9 @@ rc = subprocess.run([
     "-D",
     output_name,
     "-e",
-    "cahl.xlsx"
+    "cahl.xlsx",
+    "-s",
+    "20262027"
     ])
 
 if rc.returncode != 0:
