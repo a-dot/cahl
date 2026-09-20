@@ -1,4 +1,4 @@
-name: Weekly report
+name: Generate weekly pool
 
 on:
   schedule:
