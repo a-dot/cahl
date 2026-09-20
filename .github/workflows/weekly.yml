@@ -1,0 +1,57 @@
+name: Weekly report
+
+on:
+  schedule:
+    # Runs every monday at 9am UTC (3-4 am eastern standard time)
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allows manual trigger from the UI
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Cache weekly output files
+        uses: actions/cache@v4
+        with:
+          path: bin/output_*.json
+          key: weekly-output-${{ github.run_id }}
+          restore-keys: |
+            weekly-output-
+
+      - name: Ensure baseline output file exists
+        working-directory: bin
+        run: |
+          PREV_FILE="output_$(python3 -c 'import datetime; print((datetime.date.today() - datetime.timedelta(weeks=1)).strftime("%Y%m%d"))').json"
+          if [ ! -f "$PREV_FILE" ]; then
+            LATEST=$(ls -1 output_*.json 2>/dev/null | sort | tail -n 1)
+            if [ -n "$LATEST" ]; then
+              echo "Exact match $PREV_FILE not found. Using latest cached file $LATEST as baseline."
+              cp "$LATEST" "$PREV_FILE"
+            else
+              echo "No cached output found. Initializing empty baseline $PREV_FILE for first run."
+              echo "{}" > "$PREV_FILE"
+            fi
+          fi
+
+      - name: Build Go application
+        run: go build -o cmd/cahl/cahl ./cmd/cahl
+
+      - name: Run sender script
+        working-directory: bin
+        env:
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_RECIPIENT: ${{ secrets.SMTP_RECIPIENT }}
+          SMTP_RECIPIENT_DEV: ${{ secrets.SMTP_RECIPIENT_DEV }}
+        run: python3 sender.py
+
+      - name: Show syslog output
+        if: always()
+        run: sudo journalctl -t cahl --no-pager

@@ -1,3 +1,4 @@
+import os
 import smtplib
 from email import encoders
 from email.mime.base import MIMEBase
@@ -22,6 +23,10 @@ rc = subprocess.run([
     "-e",
     "cahl.xlsx"
     ])
+
+if rc.returncode != 0:
+    print("error generating pool")
+    sys.exit(1)
 
 syslog.syslog(syslog.LOG_DEBUG, f"done running binary, rc={rc.returncode}")
 
@@ -66,17 +71,24 @@ subject = "Pool de la semaine"
 body = "Voici le pool de la semaine.."
 sender_name = "Pool Manager"
 sender = "do-not-reply@cahl.com"
-password = ""
-# TODO FIXME ^^ add password
+
+password = os.environ.get("SMTP_PASS")
+if not password:
+    print("SMTP_PASS environment variable not set")
+    sys.exit(1)
 
 syslog.syslog(syslog.LOG_DEBUG, "send first email")
-recipients = [""]
-# TODO FIXME ^^ add dad's email
+recipients = os.environ.get("SMTP_RECIPIENT")
+if not recipients:
+    print("SMTP_RECIPIENT environment variable not set")
+    sys.exit(1)
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
 syslog.syslog(syslog.LOG_DEBUG, "send second email")
-recipients = [""]
-# TODO FIXME ^^ add my email
+recipients = os.environ.get("SMTP_RECIPIENT_DEV")
+if not recipients:
+    print("SMTP_RECIPIENT_DEV environment variable not set")
+    sys.exit(1)
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file, output_file])
 
 syslog.closelog
