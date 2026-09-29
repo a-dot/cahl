@@ -10,3 +10,4 @@ output_*
 
 cahl.freebsd
 __debug_bin*
+*.pyc

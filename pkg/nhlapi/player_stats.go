@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
@@ -105,30 +106,28 @@ func searchPlayerStatsThroughAPI(season string, id uint64) (*PlayerStats, error)
 	}
 
 	ret := &PlayerStats{}
-	found := false
+
+	if len(p.Totals) == 0 {
+		return nil, fmt.Errorf("player stats not found for player id %d", id)
+	}
 
 	for _, v := range p.Totals {
-		if v.Season != seasonID {
-			continue
-		}
-
 		if v.League != "NHL" {
 			continue
 		}
 
 		if ret.Position != "" && ret.Position != p.Position {
-			return nil, fmt.Errorf("player (%d) had position '%s' and now we found position '%s'", id, ret.Position, p.Position)
+			slog.Warn("position mismatch", "prev", ret.Position, "new", p.Position)
 		}
 
 		ret.Position = p.Position
+
+		if v.Season != seasonID {
+			continue
+		}
+
 		ret.Goals += v.Goals
 		ret.Assists += v.Assists
-
-		found = true
-	}
-
-	if !found {
-		return nil, fmt.Errorf("player stats not found for player id %d", id)
 	}
 
 	return ret, nil
