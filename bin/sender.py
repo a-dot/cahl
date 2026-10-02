@@ -71,24 +71,27 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
 
 subject = "Pool de la semaine"
 body = "Voici le pool de la semaine.."
-sender_name = "Pool Manager"
-sender = "do-not-reply@cahl.com"
+
+sender_name = os.environ.get("SMTP_SENDER_NAME")
+if not sender_name:
+    print("SMTP_SENDER_NAME environment variable not set")
+    sys.exit(1)
+
+sender = os.environ.get("SMTP_SENDER")
+if not sender:
+    print("SMTP_SENDER environment variable not set")
+    sys.exit(1)
 
 password = os.environ.get("SMTP_PASS")
 if not password:
     print("SMTP_PASS environment variable not set")
     sys.exit(1)
 
-print("password: ", password)
-
 syslog.syslog(syslog.LOG_DEBUG, "send first email")
 recipients = os.environ.get("SMTP_RECIPIENT")
 if not recipients:
     print("SMTP_RECIPIENT environment variable not set")
     sys.exit(1)
-
-print("recipients: ", recipients)
-
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
 syslog.syslog(syslog.LOG_DEBUG, "send second email")
