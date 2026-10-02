@@ -79,11 +79,16 @@ if not password:
     print("SMTP_PASS environment variable not set")
     sys.exit(1)
 
+print("password: ", password)
+
 syslog.syslog(syslog.LOG_DEBUG, "send first email")
 recipients = os.environ.get("SMTP_RECIPIENT")
 if not recipients:
     print("SMTP_RECIPIENT environment variable not set")
     sys.exit(1)
+
+print("recipients: ", recipients)
+
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
 syslog.syslog(syslog.LOG_DEBUG, "send second email")
