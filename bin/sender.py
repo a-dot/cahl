@@ -63,13 +63,15 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
     msg['To'] = ', '.join(recipients)
 
     html_part = MIMEText(body)
+    syslog.syslog(syslog.LOG_DEBUG, "AAAAAAAAAAA")
     msg.attach(html_part)
 
     for a in attachments:
+        syslog.syslog(syslog.LOG_DEBUG, "BBBBBBBBBBB")
         msg.attach(a)
 
     syslog.syslog(syslog.LOG_DEBUG, "sending message")
-    
+
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
        smtp_server.login(sender, password)
        syslog.syslog(syslog.LOG_DEBUG, "logged in")
@@ -104,6 +106,7 @@ recipients = os.environ.get("SMTP_RECIPIENT")
 if not recipients:
     print("SMTP_RECIPIENT environment variable not set")
     sys.exit(1)
+
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
 syslog.syslog(syslog.LOG_DEBUG, "send second email")
