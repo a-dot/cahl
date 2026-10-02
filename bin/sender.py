@@ -42,6 +42,8 @@ pool_file.add_header(
     f"attachment; filename=cahl.xlsx",
 )
 
+syslog.syslog(syslog.LOG_DEBUG, "done reading excel sheet")
+
 with open(output_name, "r") as attachment:
     # Add the attachment to the message
     output_file = MIMEBase("application", "octet-stream")
@@ -51,6 +53,8 @@ output_file.add_header(
     "Content-Disposition",
     f"attachment; filename=output.json",
 )
+
+syslog.syslog(syslog.LOG_DEBUG, "done reading json file")
 
 def send_email(subject, body, sender_name, sender, recipients, password, attachments):
     msg = MIMEMultipart()
@@ -68,6 +72,7 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
        smtp_server.login(sender, password)
        smtp_server.sendmail(sender, recipients, msg.as_string())
     print("Message sent!")
+    syslog.syslog(syslog.LOG_DEBUG, "message sent")
 
 subject = "Pool de la semaine"
 body = "Voici le pool de la semaine.."
