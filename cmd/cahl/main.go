@@ -31,6 +31,7 @@ func main() {
 		panic(err)
 	}
 
+	slog.Debug("checking previous week ranking file", "file", opts.PrevDataFile)
 	var prevRanking cahl.Ranking
 	if len(opts.PrevDataFile) > 0 {
 		slog.Debug("previous week ranking file found")
@@ -39,6 +40,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		slog.Debug("previous week ranking file content", "content", data[:100])
 
 		err = json.Unmarshal(data, &prevRanking)
 		if err != nil {
