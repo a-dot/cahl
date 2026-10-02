@@ -88,6 +88,7 @@ func main() {
 	ranking := cahl.CreateRanking(inTeams)
 
 	if len(opts.DataOutputFile) > 0 {
+		slog.Debug("marshalling output file")
 		outputData, err := json.Marshal(ranking)
 		if err != nil {
 			panic(err)
