@@ -91,7 +91,11 @@ func main() {
 			panic(err)
 		}
 
+		slog.Debug("ranking marshalled data", "data", outputData[:50])
+
 		outputFile := fmt.Sprintf("%s_%s.json", opts.DataOutputFile, time.Now().Format("20060102"))
+
+		slog.Debug("saving ranking file", "output_file", outputFile)
 
 		err = os.WriteFile(outputFile, outputData, 0644)
 		if err != nil {
