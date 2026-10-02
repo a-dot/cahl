@@ -68,7 +68,7 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
     for a in attachments:
         msg.attach(a)
 
-    syslog.syslog(syslog.LOG_DEBUG, "sending message")
+    syslog.syslog(syslog.LOG_DEBUG, f"sending message to={recipients}, to_formatted={msg['To']}")
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
        smtp_server.login(sender, password)
