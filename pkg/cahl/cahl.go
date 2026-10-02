@@ -6,10 +6,11 @@ import (
 )
 
 type Team struct {
-	Name    string    `json:"name"`
-	Manager string    `json:"manager"`
-	Players []*Player `json:"players"`
-	Clubs   []*Club   `json:"teams"`
+	Name        string    `json:"name"`
+	Manager     string    `json:"manager"`
+	Players     []*Player `json:"players"`
+	Clubs       []*Club   `json:"teams"`
+	QuebecRound Player    `json:"quebec_round"`
 }
 
 type Player struct {
@@ -37,11 +38,11 @@ type ClubStats struct {
 
 // Returns nil if the team is valid or an error if it's not
 func (t Team) Valid() error {
-	if len(t.Players) != 9 {
+	if len(t.Players) != TeamPlayerCount {
 		return fmt.Errorf("team '%s' has the wrong number of players (%d)", t.Name, len(t.Players))
 	}
 
-	if len(t.Clubs) != 3 {
+	if len(t.Clubs) != TeamClubCount {
 		return fmt.Errorf("team '%s' has the wrong number of clubs (%d)", t.Name, len(t.Clubs))
 	}
 
@@ -63,12 +64,41 @@ func (t Team) Score() (score int) {
 }
 
 const (
+	TeamPlayerCount = 9
+	TeamClubCount   = 3
+
 	GoalDefencePointsFactor = 3
 	GoalForwardPointsFactor = 2
 	AssistPointsFactor      = 1
 	WinPointsFactor         = 2
 	LossesInOTPointsFactor  = 1
+	QuebecRoundGoalFactor   = 1
+	QuebecRoundMultiplier   = 3
 )
+
+func (p Player) ScoreForQuebecRound() (int, error) {
+	var quebecPlayerThresholds = map[string]int{
+		"Claude Giroux":      14,
+		"Philippe Danault":   14,
+		"Zachary Bolduc":     14,
+		"Alexis Lafrenière":  27,
+		"Pierre-Luc Dubois":  21,
+		"Jonathan Huberdeau": 23,
+	}
+
+	threshold, ok := quebecPlayerThresholds[p.Name]
+	if !ok {
+		return 0, fmt.Errorf("invalid name '%s'", p.Name)
+	}
+
+	score := p.Stats.Goals * QuebecRoundGoalFactor
+
+	if p.Stats.Goals >= threshold {
+		score *= QuebecRoundMultiplier
+	}
+
+	return score, nil
+}
 
 func (p Player) ScoreForGoals() (score int) {
 	if p.Position == Defence {
@@ -113,7 +143,7 @@ func (c Club) Score() (score int) {
 
 	score += c.ScoreForLossesInOT()
 
-	slog.Debug("club score", "name", c.Abbrev, "wins", c.Stats.Wins, "lossesInOT", c.Stats.LossesInOT, "inc", c.Stats.Wins*2+c.Stats.LossesInOT)
+	slog.Debug("club score", "name", c.Abbrev, "wins", c.Stats.Wins, "lossesInOT", c.Stats.LossesInOT, "inc", c.Stats.Wins*WinPointsFactor+c.Stats.LossesInOT*LossesInOTPointsFactor)
 
 	return
 }
@@ -122,6 +152,14 @@ func (t Team) ScoreForGoals() (score int) {
 	for _, p := range t.Players {
 		score += p.ScoreForGoals()
 	}
+
+	// Special Quebec Round
+	v, err := t.QuebecRound.ScoreForQuebecRound()
+	if err != nil {
+		slog.Warn("quebec round failed", "err", err)
+	}
+
+	score += v
 
 	return
 }

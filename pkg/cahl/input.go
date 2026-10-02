@@ -9,10 +9,11 @@ import (
 )
 
 type TeamInput struct {
-	Name    string   `json:"team_name"`
-	Manager string   `json:"manager"`
-	Players []string `json:"players"`
-	Clubs   []string `json:"teams"`
+	Name        string   `json:"team_name"`
+	Manager     string   `json:"manager"`
+	Players     []string `json:"players"`
+	Clubs       []string `json:"teams"`
+	QuebecRound string   `json:"quebec_round"`
 }
 
 func LoadTeams(inputFile string) ([]Team, error) {
@@ -72,14 +73,19 @@ func createTeams(in []TeamInput) ([]Team, error) {
 			Manager: inputTeam.Manager,
 			Players: make([]*Player, len(inputTeam.Players)),
 			Clubs:   make([]*Club, len(inputTeam.Clubs)),
+			QuebecRound: Player{
+				Name: inputTeam.QuebecRound,
+			},
 		}
 
+		// Players
 		for i, p := range inputTeam.Players {
 			t.Players[i] = &Player{
 				Name: p,
 			}
 		}
 
+		// Clubs
 		for i, c := range inputTeam.Clubs {
 			t.Clubs[i] = &Club{
 				Abbrev: c,
