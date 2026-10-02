@@ -33,6 +33,8 @@ func main() {
 
 	var prevRanking cahl.Ranking
 	if len(opts.PrevDataFile) > 0 {
+		slog.Debug("previous week ranking file found")
+
 		data, err := os.ReadFile(opts.PrevDataFile)
 		if err != nil {
 			panic(err)
@@ -42,6 +44,10 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		slog.Debug("previous week ranking file unmarshalled")
+	} else {
+		slog.Debug("previous week ranking file not found")
 	}
 
 	inTeams, err := cahl.LoadTeams(opts.TeamsFile)
