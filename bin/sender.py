@@ -68,11 +68,18 @@ def send_email(subject, body, sender_name, sender, recipients, password, attachm
     for a in attachments:
         msg.attach(a)
 
+    syslog.syslog(syslog.LOG_DEBUG, "sending message")
+    
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
        smtp_server.login(sender, password)
+       syslog.syslog(syslog.LOG_DEBUG, "logged in")
+       
        smtp_server.sendmail(sender, recipients, msg.as_string())
+       syslog.syslog(syslog.LOG_DEBUG, "message sent")
+
+       smtp_server.quit()
+
     print("Message sent!")
-    syslog.syslog(syslog.LOG_DEBUG, "message sent")
 
 subject = "Pool de la semaine"
 body = "Voici le pool de la semaine.."
