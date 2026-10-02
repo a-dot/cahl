@@ -31,6 +31,8 @@ func main() {
 		panic(err)
 	}
 
+	slog.Debug("options", "teams_file", opts.TeamsFile, "season", opts.Season, "output_file", opts.DataOutputFile, "prev_data_file", opts.PrevDataFile, "excel_output_file", opts.ExcelOutputFile)
+
 	slog.Debug("checking previous week ranking file", "file", opts.PrevDataFile)
 	var prevRanking cahl.Ranking
 	if len(opts.PrevDataFile) > 0 {
