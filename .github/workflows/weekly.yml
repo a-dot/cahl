@@ -50,6 +50,8 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_RECIPIENT: ${{ secrets.SMTP_RECIPIENT }}
           SMTP_RECIPIENT_DEV: ${{ secrets.SMTP_RECIPIENT_DEV }}
+          SMTP_SENDER: ${{ secrets.SMTP_SENDER }}
+          SMTP_SENDER_NAME: ${{ secrets.SMTP_SENDER_NAME }}
         run: python3 sender.py
 
       - name: Show syslog output
