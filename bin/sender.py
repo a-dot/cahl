@@ -11,8 +11,10 @@ syslog.openlog("cahl", syslog.LOG_PID, syslog.LOG_USER)
 
 syslog.syslog("starting")
 
-lastweek = datetime.date.today() - datetime.timedelta(weeks=1)
+today = datetime.date.today()
+lastweek = today - datetime.timedelta(weeks=1)
 output_name = "output_{}.json".format(lastweek.strftime("%Y%m%d"))
+current_output_name = "output_{}.json".format(today.strftime("%Y%m%d"))
 
 rc = subprocess.run([
     "../cmd/cahl/cahl",
@@ -51,10 +53,22 @@ with open(output_name, "r") as attachment:
 encoders.encode_base64(output_file)
 output_file.add_header(
     "Content-Disposition",
-    f"attachment; filename=output.json",
+    f"attachment; filename={output_name}",
 )
 
-syslog.syslog(syslog.LOG_DEBUG, "done reading json file")
+syslog.syslog(syslog.LOG_DEBUG, "done reading previous week json file")
+
+with open(current_output_name, "r") as attachment:
+    # Add the attachment to the message
+    current_output_file = MIMEBase("application", "octet-stream")
+    current_output_file.set_payload(attachment.read())
+encoders.encode_base64(current_output_file)
+current_output_file.add_header(
+    "Content-Disposition",
+    f"attachment; filename={current_output_name}",
+)
+
+syslog.syslog(syslog.LOG_DEBUG, "done reading current week json file")
 
 def send_email(subject, body, sender_name, sender, recipients, password, attachments):
     msg = MIMEMultipart()
@@ -115,6 +129,6 @@ if not smtp_recipient_dev:
     sys.exit(1)
 recipients = [r.strip() for r in smtp_recipient_dev.split(",") if r.strip()]
 
-send_email(subject, body, sender_name, sender, recipients, password, [pool_file, output_file])
+send_email(subject, body, sender_name, sender, recipients, password, [pool_file, output_file, current_output_file])
 
 syslog.closelog()
