@@ -100,18 +100,21 @@ if not password:
     sys.exit(1)
 
 syslog.syslog(syslog.LOG_DEBUG, "send first email")
-recipients = os.environ.get("SMTP_RECIPIENT")
-if not recipients:
+smtp_recipient = os.environ.get("SMTP_RECIPIENT")
+if not smtp_recipient:
     print("SMTP_RECIPIENT environment variable not set")
     sys.exit(1)
+recipients = [r.strip() for r in smtp_recipient.split(",") if r.strip()]
 
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file])
 
 syslog.syslog(syslog.LOG_DEBUG, "send second email")
-recipients = os.environ.get("SMTP_RECIPIENT_DEV")
-if not recipients:
+smtp_recipient_dev = os.environ.get("SMTP_RECIPIENT_DEV")
+if not smtp_recipient_dev:
     print("SMTP_RECIPIENT_DEV environment variable not set")
     sys.exit(1)
+recipients = [r.strip() for r in smtp_recipient_dev.split(",") if r.strip()]
+
 send_email(subject, body, sender_name, sender, recipients, password, [pool_file, output_file])
 
-syslog.closelog
+syslog.closelog()
