@@ -94,7 +94,7 @@ func main() {
 			panic(err)
 		}
 
-		slog.Debug("ranking marshalled data", "data", outputData[:50])
+		slog.Debug("ranking marshalled data", "data", outputData[:150])
 
 		outputFile := fmt.Sprintf("%s_%s.json", opts.DataOutputFile, time.Now().Format("20060102"))
 
