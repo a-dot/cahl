@@ -64,7 +64,8 @@ func main() {
 	playerFetcher := nhlapi.NewPlayerInfoFetcher()
 	clubFetcher := nhlapi.NewClubInfoFetcher()
 
-	for _, team := range inTeams {
+	for i := range inTeams {
+		team := &inTeams[i]
 		if err := team.Valid(); err != nil {
 			slog.Error("invalid team", "name", team.Name, "err", err)
 			os.Exit(1)
@@ -79,6 +80,13 @@ func main() {
 
 		for _, club := range team.Clubs {
 			err := club.FetchStats(clubFetcher)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		if team.QuebecRound.Name != "" {
+			err := team.QuebecRound.FetchStats(opts.Season, playerSearcher, playerFetcher)
 			if err != nil {
 				panic(err)
 			}

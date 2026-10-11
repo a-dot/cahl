@@ -537,6 +537,48 @@ func TestTeamScore(t *testing.T) {
 			// 13 + 10 + 23 = 46
 			expectedScore: 46,
 		},
+		{
+			name: "Team with Quebec round below threshold",
+			team: Team{
+				Name: "Team QC Below",
+				Players: []*Player{
+					{Name: "Forward", Position: Forward, Stats: PlayerStats{Goals: 2}}, // 4
+				},
+				QuebecRound: Player{
+					Name:  "Claude Giroux",
+					Stats: PlayerStats{Goals: 10}, // threshold 14 -> 10 * 1 = 10
+				},
+			},
+			expectedScore: 14, // 4 + 10
+		},
+		{
+			name: "Team with Quebec round at or above threshold",
+			team: Team{
+				Name: "Team QC Above",
+				Players: []*Player{
+					{Name: "Forward", Position: Forward, Stats: PlayerStats{Goals: 2}}, // 4
+				},
+				QuebecRound: Player{
+					Name:  "Claude Giroux",
+					Stats: PlayerStats{Goals: 14}, // threshold 14 -> 14 * 1 * 3 = 42
+				},
+			},
+			expectedScore: 46, // 4 + 42
+		},
+		{
+			name: "Team with invalid Quebec round player handles error and adds 0",
+			team: Team{
+				Name: "Team QC Invalid",
+				Players: []*Player{
+					{Name: "Forward", Position: Forward, Stats: PlayerStats{Goals: 3}}, // 6
+				},
+				QuebecRound: Player{
+					Name:  "Unknown Player",
+					Stats: PlayerStats{Goals: 50},
+				},
+			},
+			expectedScore: 6, // 6 + 0
+		},
 	}
 
 	for _, tt := range tests {

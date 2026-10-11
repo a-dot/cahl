@@ -2,6 +2,7 @@ package cahl
 
 import (
 	"fmt"
+	"log/slog"
 	"slices"
 	"strconv"
 
@@ -51,7 +52,7 @@ func equipesSheet(f *excelize.File, sheetName string, teams []Team) int {
 
 		if i%2 == 0 {
 			if i > 0 {
-				rowOffset += 17
+				rowOffset += 18
 			}
 
 			row = i + 1 + rowOffset
@@ -93,13 +94,13 @@ func genTeam(f *excelize.File, sheetName string, row int, colOrigin rune, team T
 	f.SetCellValue(sheetName, cellName(row, colOrigin), "JOUEURS")
 
 	col := colLetters[slices.Index(colLetters, colOrigin)+1]
-	f.SetCellValue(sheetName, cellName(row, col), "B")
+	f.SetCellValue(sheetName, cellName(row, col), "B/V")
 
 	col = colLetters[slices.Index(colLetters, col)+1]
 	f.SetCellValue(sheetName, cellName(row, col), "P")
 
 	col = colLetters[slices.Index(colLetters, col)+1]
-	f.SetCellValue(sheetName, cellName(row, col), "V")
+	f.SetCellValue(sheetName, cellName(row, col), "DP")
 
 	col = colLetters[slices.Index(colLetters, col)+1]
 	f.SetCellValue(sheetName, cellName(row, col), "TOT")
@@ -143,6 +144,23 @@ func genTeam(f *excelize.File, sheetName string, row int, colOrigin rune, team T
 
 		row += 1
 	}
+
+	// Quebec Round
+	col = colOrigin
+
+	f.SetCellValue(sheetName, cellName(row, col), team.QuebecRound.Name)
+
+	col = colLetters[slices.Index(colLetters, col)+1]
+	score, err := team.QuebecRound.ScoreForQuebecRound()
+	if err != nil {
+		slog.Warn("quebec round score failed", "player", team.QuebecRound.Name, "err", err)
+	}
+	f.SetCellValue(sheetName, cellName(row, col), score)
+
+	col = colLetters[slices.Index(colLetters, col)+3]
+	f.SetCellValue(sheetName, cellName(row, col), score)
+
+	row += 1
 
 	style, err = f.NewStyle(&excelize.Style{
 		Alignment: &excelize.Alignment{

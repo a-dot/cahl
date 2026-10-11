@@ -58,6 +58,14 @@ func (t Team) Score() (score int) {
 		score += c.Score()
 	}
 
+	// Special Quebec Round
+	v, err := t.QuebecRound.ScoreForQuebecRound()
+	if err != nil {
+		slog.Warn("quebec round failed", "err", err)
+	}
+
+	score += v
+
 	slog.Debug("calculated team score", "team", t.Name, "score", score)
 
 	return
