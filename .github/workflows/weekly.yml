@@ -3,7 +3,7 @@ name: Generate weekly pool
 on:
   schedule:
     # Runs every monday at 4am
-    - cron: '0 2 * * 1'
+    - cron: '0 0 * * 1'
       timezone: 'America/New_York'
   workflow_dispatch: # Allows manual trigger from the UI
 
