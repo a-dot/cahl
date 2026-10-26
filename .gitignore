@@ -5,7 +5,7 @@ output.json
 
 .DS_Store
 
-output_*
+cmd/cahl/output_*
 *.xlsx
 
 cahl.freebsd

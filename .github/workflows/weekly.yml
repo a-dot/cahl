@@ -7,6 +7,9 @@ on:
       timezone: 'America/New_York'
   workflow_dispatch: # Allows manual trigger from the UI
 
+permissions:
+  contents: write # needed to push the output file to data/past_runs
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -19,13 +22,9 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Cache weekly output files
-        uses: actions/cache@v5
-        with:
-          path: bin/output_*.json
-          key: weekly-output-${{ github.run_id }}
-          restore-keys: |
-            weekly-output-
+      - name: Restore past output files
+        run: |
+          cp data/past_runs/output_*.json bin/ 2>/dev/null || true
 
       - name: Ensure baseline output file exists
         working-directory: bin
@@ -58,3 +57,12 @@ jobs:
       - name: Show syslog output
         if: always()
         run: sudo journalctl -t cahl --no-pager
+
+      - name: Commit output file
+        run: |
+          cp "bin/output_$(date +%Y%m%d).json" data/past_runs/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/past_runs/output_*.json
+          git commit -m "add weekly output $(date +%Y%m%d)" || echo "nothing to commit"
+          git push
