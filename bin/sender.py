@@ -46,7 +46,7 @@ pool_file.add_header(
 
 syslog.syslog(syslog.LOG_DEBUG, "done reading excel sheet")
 
-with open(output_name, "r") as attachment:
+with open(output_name, "rb") as attachment:
     # Add the attachment to the message
     output_file = MIMEBase("application", "octet-stream")
     output_file.set_payload(attachment.read())
@@ -58,7 +58,7 @@ output_file.add_header(
 
 syslog.syslog(syslog.LOG_DEBUG, "done reading previous week json file")
 
-with open(current_output_name, "r") as attachment:
+with open(current_output_name, "rb") as attachment:
     # Add the attachment to the message
     current_output_file = MIMEBase("application", "octet-stream")
     current_output_file.set_payload(attachment.read())
